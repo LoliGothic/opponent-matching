@@ -1,115 +1,233 @@
 import 'package:flutter/material.dart';
+import 'position.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+      home: Scaffold(
+        body: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: ListView.builder(
+              itemCount: _articles.length,
+              itemBuilder: (BuildContext context, int index) {
+                final item = _articles[index];
+                return Container(
+                  height: 136,
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                      borderRadius: BorderRadius.circular(8.0)),
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Text("${item.author} · ${item.postedOn}",
+                              style: Theme.of(context).textTheme.caption),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icons.bookmark_border_rounded,
+                              Icons.share,
+                              Icons.more_vert
+                            ].map((e) {
+                              return InkWell(
+                                onTap: () {},
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: Icon(e, size: 16),
+                                ),
+                              );
+                            }).toList(),
+                          )
+                        ],
+                      )),
+                      Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(item.imageUrl),
+                              ))),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            final position = determinePosition();
+            showDialog<void>(
+              context: context,
+              builder: (_) {
+                return const AlertDialogSample();
+              });
+          },
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class AlertDialogSample extends StatelessWidget {
+  const AlertDialogSample({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    return AlertDialog(
+      title: const DropdownButtonMenu(),
+      content: const TextField(
+        decoration: InputDecoration(
+          labelText: "備考",
+          // hintText: "Some Hint"
+        ),         
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+      actions: <Widget>[
+        GestureDetector(
+          child: const Text('いいえ'),
+          onTap: () {
+            Navigator.pop(context);
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        GestureDetector(
+          child: const Text('はい'),
+          onTap: () {},
+        )
+      ],
     );
   }
 }
+
+class DropdownButtonMenu extends StatefulWidget {
+  const DropdownButtonMenu({Key? key}) : super(key: key);
+
+  @override
+  State<DropdownButtonMenu> createState() => _DropdownButtonMenuState();
+}
+
+class _DropdownButtonMenuState extends State<DropdownButtonMenu> {
+  String isSelectedValue = 'あ';
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField(
+      decoration: const InputDecoration(
+        labelText: "タイトルの選択"
+      ),
+      items: const[
+        DropdownMenuItem(
+          value: 'あ',
+          child: Text('あ'),
+        ),
+        DropdownMenuItem(
+            value: 'い',
+            child: Text('い'),
+        ),
+        DropdownMenuItem(
+            value: 'う',
+            child: Text('う'),
+        ),
+        DropdownMenuItem(
+            value: 'え',
+            child: Text('え'),
+        ),
+        DropdownMenuItem(
+            value: 'お',
+            child: Text('お'),
+        ),
+      ],
+      value: isSelectedValue,
+      onChanged: (String? value) {
+        setState(() {
+          isSelectedValue = value!;
+        });
+      },
+    );
+  }
+}
+
+class Article {
+  final String title;
+  final String imageUrl;
+  final String author;
+  final String postedOn;
+
+  Article(
+      {required this.title,
+      required this.imageUrl,
+      required this.author,
+      required this.postedOn});
+}
+
+final List<Article> _articles = [
+  Article(
+    title: "Instagram quietly limits ‘daily time limit’ option",
+    author: "MacRumors",
+    imageUrl: "https://picsum.photos/id/1000/960/540",
+    postedOn: "Yesterday",
+  ),
+  Article(
+      title: "Google Search dark theme goes fully black for some on the web",
+      imageUrl: "https://picsum.photos/id/1010/960/540",
+      author: "9to5Google",
+      postedOn: "4 hours ago"),
+  Article(
+    title: "Check your iPhone now: warning signs someone is spying on you",
+    author: "New York Times",
+    imageUrl: "https://picsum.photos/id/1001/960/540",
+    postedOn: "2 days ago",
+  ),
+  Article(
+    title:
+        "Amazon’s incredibly popular Lost Ark MMO is ‘at capacity’ in central Europe",
+    author: "MacRumors",
+    imageUrl: "https://picsum.photos/id/1002/960/540",
+    postedOn: "22 hours ago",
+  ),
+  Article(
+    title:
+        "Panasonic's 25-megapixel GH6 is the highest resolution Micro Four Thirds camera yet",
+    author: "Polygon",
+    imageUrl: "https://picsum.photos/id/1020/960/540",
+    postedOn: "2 hours ago",
+  ),
+  Article(
+    title: "Samsung Galaxy S22 Ultra charges strangely slowly",
+    author: "TechRadar",
+    imageUrl: "https://picsum.photos/id/1021/960/540",
+    postedOn: "10 days ago",
+  ),
+  Article(
+    title: "Snapchat unveils real-time location sharing",
+    author: "Fox Business",
+    imageUrl: "https://picsum.photos/id/1060/960/540",
+    postedOn: "10 hours ago",
+  ),
+];
