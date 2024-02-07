@@ -1,7 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:geolocator/geolocator.dart';
+import 'firebase_options.dart';
 import 'position.dart';
+import 'database.dart';
+import 'image.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MaterialApp(home: MyApp()));
 }
 
@@ -10,6 +20,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final service = DataService(); //データベースのクラス
+
     return MaterialApp(
       home: Scaffold(
         body: Center(
@@ -81,7 +93,6 @@ class MyApp extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            final position = determinePosition();
             showDialog<void>(
               context: context,
               builder: (_) {
@@ -101,39 +112,57 @@ class AlertDialogSample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final service = DataService(); //データベースのクラス
+    var contentController = TextEditingController();
+    String title = "ポケカ";
+
     return AlertDialog(
-      title: const DropdownButtonMenu(),
-      content: const TextField(
-        decoration: InputDecoration(
+      title: DropdownButtonMenu(
+        onValueChanged: (value) {
+          title = value;
+        },
+      ),
+      content: TextField(
+        keyboardType: TextInputType.multiline,
+        controller: contentController,
+        maxLines: null,
+        decoration: const InputDecoration(
           labelText: "備考",
           // hintText: "Some Hint"
         ),         
       ),
       actions: <Widget>[
-        GestureDetector(
-          child: const Text('いいえ'),
-          onTap: () {
-            Navigator.pop(context);
+        FloatingActionButton.extended(
+          onPressed: () {  
+            getImageFromCamera();
           },
+          icon: const Icon(Icons.add),
+          label: const Text("写真を追加する"), 
+          ),
+        FloatingActionButton.extended(
+          onPressed: () async {
+            // データベースに登録
+            Position position = await determinePosition();
+            GeoPoint coordinate = GeoPoint(position.latitude, position.longitude);
+            service.addPost(title, contentController.text, coordinate, "https://firebasestorage.googleapis.com/v0/b/opponent-matching.appspot.com/o/images%2Fgaryu.jpg?alt=media&token=57609fd0-1867-4279-8c4e-01c249d351ce");
+          },
+          label: const Text("投稿"),
         ),
-        GestureDetector(
-          child: const Text('はい'),
-          onTap: () {},
-        )
       ],
     );
   }
 }
 
 class DropdownButtonMenu extends StatefulWidget {
-  const DropdownButtonMenu({Key? key}) : super(key: key);
+  final void Function(String)? onValueChanged;
+  const DropdownButtonMenu({Key? key, this.onValueChanged}) : super(key: key);
 
   @override
   State<DropdownButtonMenu> createState() => _DropdownButtonMenuState();
 }
 
 class _DropdownButtonMenuState extends State<DropdownButtonMenu> {
-  String isSelectedValue = 'あ';
+  String isSelectedValue = 'ポケカ';
 
   @override
   Widget build(BuildContext context) {
@@ -143,30 +172,31 @@ class _DropdownButtonMenuState extends State<DropdownButtonMenu> {
       ),
       items: const[
         DropdownMenuItem(
-          value: 'あ',
-          child: Text('あ'),
+          value: 'ポケカ',
+          child: Text('ポケカ'),
         ),
         DropdownMenuItem(
-            value: 'い',
-            child: Text('い'),
+            value: 'デュエマ',
+            child: Text('デュエマ'),
         ),
         DropdownMenuItem(
-            value: 'う',
-            child: Text('う'),
+            value: '遊戯王',
+            child: Text('遊戯王'),
         ),
         DropdownMenuItem(
-            value: 'え',
-            child: Text('え'),
+            value: 'MTG',
+            child: Text('MTG'),
         ),
         DropdownMenuItem(
-            value: 'お',
-            child: Text('お'),
+            value: 'ヴァンガード',
+            child: Text('ヴァンガード'),
         ),
       ],
       value: isSelectedValue,
       onChanged: (String? value) {
         setState(() {
           isSelectedValue = value!;
+          widget.onValueChanged?.call(isSelectedValue);
         });
       },
     );
@@ -188,20 +218,20 @@ class Article {
 
 final List<Article> _articles = [
   Article(
-    title: "Instagram quietly limits ‘daily time limit’ option",
+    title: "デュエマ",
     author: "MacRumors",
-    imageUrl: "https://picsum.photos/id/1000/960/540",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/opponent-matching.appspot.com/o/images%2Fgaryu.jpg?alt=media&token=57609fd0-1867-4279-8c4e-01c249d351ce",
     postedOn: "Yesterday",
   ),
   Article(
-      title: "Google Search dark theme goes fully black for some on the web",
-      imageUrl: "https://picsum.photos/id/1010/960/540",
+      title: "ポケカ",
+      imageUrl: "",
       author: "9to5Google",
       postedOn: "4 hours ago"),
   Article(
-    title: "Check your iPhone now: warning signs someone is spying on you",
+    title: "シャドバ",
     author: "New York Times",
-    imageUrl: "https://picsum.photos/id/1001/960/540",
+    imageUrl: "https://pbs.twimg.com/media/F_dSvkca0AA0hWq?format=jpg&name=900x900",
     postedOn: "2 days ago",
   ),
   Article(
