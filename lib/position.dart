@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 Future<Position> determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
+  Position position;
 
   // 位置情報サービスが有効かどうかをテストします。
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -34,6 +35,5 @@ Future<Position> determinePosition() async {
 
   // ここまでたどり着くと、位置情報に対しての権限が許可されているということなので
   // デバイスの位置情報を返す。
-  print(await Geolocator.getCurrentPosition());
-  return await Geolocator.getCurrentPosition();
+  return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
 }
