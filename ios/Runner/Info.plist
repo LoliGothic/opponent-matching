@@ -3,9 +3,15 @@
 <plist version="1.0">
 <dict>
   <key>NSLocationWhenInUseUsageDescription</key>
-  <string>This app needs access to location when open.</string>
+  <string>近くにいる人の投稿を表示するために使います．</string>
   <key>NSLocationAlwaysUsageDescription</key>
-  <string>This app needs access to location when in the background.</string>
+  <string>近くにいる人の投稿を表示するために使います．</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>フォトライブラリを利用する理由を記載</string>
+  <key>NSCameraUsageDescription</key>
+  <string>カメラを利用する理由を記載</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>マイクを利用する理由を記載</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
